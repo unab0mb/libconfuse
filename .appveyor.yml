@@ -1,0 +1,36 @@
+# .appveyor.yml
+
+# Build version
+version: '3.2.3.{build}'
+
+# Use the latest available toolchain
+image: Visual Studio 2019
+
+# fetch repository as zip archive
+shallow_clone: true
+
+# PRs do not increment the build number
+pull_requests:
+  do_not_increment_build_number: true
+
+build_script:
+  - ps: ./windows/appveyor/msys2-release
+
+# Do not run unit tests
+test: off
+
+# Package artifacts
+artifacts:
+  - path: confuse-${appveyor_build_version}.*
+    name: confuse-${appveyor_build_version}
+
+# Create a GitHub release for every tag
+deploy:
+  - provider: GitHub
+    tag: ${appveyor_repo_tag_name}
+    release: libconfuse-v${appveyor_build_version}
+    artifact: confuse-${appveyor_build_version}
+    auth_token:
+      secure: SXUyBqg8+wl9fn3xHV2Br0xDH65EyPAnFwJbwcg94wIesv9osQEefC3zxu9iDTUh
+    on:
+      appveyor_repo_tag: true

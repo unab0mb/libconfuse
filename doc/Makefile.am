@@ -12,7 +12,7 @@ TUTORIAL_CSOURCES = listing1.c listing2.c listing3.c listing4.c \
 		    listing5.c listing6.c listing7.c listing8.c
 TUTORIAL_LISTINGS = $(TUTORIAL_CSOURCES:.c=.xml)
 MOSTLYCLEANFILES  = tutorial.pdf
-DISTCLEANFILES    =
+DISTCLEANFILES    = doxygen_sqlite3.db
 CLEANFILES        =*~ '\#*\#' $(TUTORIAL_LISTINGS)
 
 .c.xml:

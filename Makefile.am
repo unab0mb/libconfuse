@@ -65,11 +65,11 @@ rpm: Makefile
 ## ZIP files are reserved for the Windows distribution of libConfuse
 dist-zip: zip
 
-## Generate MD5 checksum file
-MD5 = md5sum
-md5-dist:
+## Generate SHA256 checksum file
+SHA256 = sha256sum
+hash-dist:
 	@for file in $(DIST_ARCHIVES) $(distdir).zip; do	\
-		$(MD5) $$file > $$file.md5;			\
+		$(SHA256) $$file > $$file.sha256;			\
 	done
 
 ## Check if tagged in git
@@ -92,11 +92,11 @@ release-hook:
 
 ## Target to run when building a release
 ## distcheck <-- does not work atm., wrong search path for source/header files
-release: release-hook distcheck dist-zip md5-dist
+release: release-hook distcheck dist-zip hash-dist
 	@echo
 	@echo "Resulting release files:"
 	@echo "================================================================="
 	@for file in $(DIST_ARCHIVES) $(distdir).zip; do				\
 		printf "$$file    \tDistribution tarball\n";				\
-		printf "$$file.md5\t"; cat $$file.md5 | cut -f1 -d' ';			\
+		printf "$$file.sha256\t"; cat $$file.sha256 | cut -f1 -d' ';			\
 	done
