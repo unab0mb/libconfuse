@@ -107,7 +107,7 @@ extern FILE *fmemopen(void *buf, size_t size, const char *type);
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-static char *strdup(const char *str)
+static char *_strdup(const char *str)
 {
 	size_t len;
 	char *dup;
@@ -489,7 +489,7 @@ static cfg_opt_t *cfg_dupopt_array(cfg_opt_t *opts)
 	memcpy(dupopts, opts, n * sizeof(cfg_opt_t));
 
 	for (i = 0; i < n; i++) {
-		dupopts[i].name = strdup(opts[i].name);
+		dupopts[i].name = _strdup(opts[i].name);
 		if (!dupopts[i].name)
 			goto err;
 
@@ -500,12 +500,12 @@ static cfg_opt_t *cfg_dupopt_array(cfg_opt_t *opts)
 		}
 
 		if (is_set(CFGF_LIST, opts[i].flags) || opts[i].type == CFGT_FUNC) {
-			dupopts[i].def.parsed = opts[i].def.parsed ? strdup(opts[i].def.parsed) : NULL;
+			dupopts[i].def.parsed = opts[i].def.parsed ? _strdup(opts[i].def.parsed) : NULL;
 			if (opts[i].def.parsed && !dupopts[i].def.parsed)
 				goto err;
 		}
 		else if (opts[i].type == CFGT_STR) {
-			dupopts[i].def.string = opts[i].def.string ? strdup(opts[i].def.string) : NULL;
+			dupopts[i].def.string = opts[i].def.string ? _strdup(opts[i].def.string) : NULL;
 			if (opts[i].def.string && !dupopts[i].def.string)
 				goto err;
 		}
@@ -794,7 +794,7 @@ DLLIMPORT cfg_value_t *cfg_setopt(cfg_t *cfg, cfg_opt_t *opt, const char *value)
 		}
 
 		free(val->string);
-		val->string = strdup(s);
+		val->string = _strdup(s);
 		if (!val->string)
 			return NULL;
 		break;
@@ -809,14 +809,14 @@ DLLIMPORT cfg_value_t *cfg_setopt(cfg_t *cfg, cfg_opt_t *opt, const char *value)
 			if (!val->section)
 				return NULL;
 
-			val->section->name = strdup(opt->name);
+			val->section->name = _strdup(opt->name);
 			if (!val->section->name) {
 				free(val->section);
 				return NULL;
 			}
 
 			val->section->flags = cfg->flags;
-			val->section->filename = cfg->filename ? strdup(cfg->filename) : NULL;
+			val->section->filename = cfg->filename ? _strdup(cfg->filename) : NULL;
 			if (cfg->filename && !val->section->filename) {
 				free(val->section->name);
 				free(val->section);
@@ -825,7 +825,7 @@ DLLIMPORT cfg_value_t *cfg_setopt(cfg_t *cfg, cfg_opt_t *opt, const char *value)
 
 			val->section->line = cfg->line;
 			val->section->errfunc = cfg->errfunc;
-			val->section->title = value ? strdup(value) : NULL;
+			val->section->title = value ? _strdup(value) : NULL;
 			if (value && !val->section->title) {
 				free(val->section->filename);
 				free(val->section->name);
@@ -1104,7 +1104,7 @@ static int cfg_parse_internal(cfg_t *cfg, int level, int force_state, cfg_opt_t 
 
 				if (comment)
 					free(comment);
-				comment = strdup(cfg_yylval);
+				comment = _strdup(cfg_yylval);
 				continue;
 
 			default:
@@ -1261,7 +1261,7 @@ static int cfg_parse_internal(cfg_t *cfg, int level, int force_state, cfg_opt_t 
 				cfg_error(cfg, _("missing title for section '%s'"), opt ? opt->name : "");
 				goto error;
 			} else {
-				opttitle = strdup(cfg_yylval);
+				opttitle = _strdup(cfg_yylval);
 				if (!opttitle)
 					goto error;
 			}
@@ -1286,7 +1286,7 @@ static int cfg_parse_internal(cfg_t *cfg, int level, int force_state, cfg_opt_t 
 				if (!val)
 					goto error;
 
-				val->string = strdup(cfg_yylval);
+				val->string = _strdup(cfg_yylval);
 				if (!val->string)
 					goto error;
 
@@ -1428,7 +1428,7 @@ DLLIMPORT int cfg_parse_fp(cfg_t *cfg, FILE *fp)
 	}
 
 	if (!cfg->filename)
-		cfg->filename = strdup("FILE");
+		cfg->filename = _strdup("FILE");
 	if (!cfg->filename)
 		return CFG_PARSE_ERROR;
 
@@ -1547,7 +1547,7 @@ DLLIMPORT int cfg_parse_buf(cfg_t *cfg, const char *buf)
 	if (!buf)
 		return CFG_SUCCESS;
 
-	fn = strdup("[buf]");
+	fn = _strdup("[buf]");
 	if (!fn)
 		return CFG_PARSE_ERROR;
 
@@ -1580,7 +1580,7 @@ DLLIMPORT cfg_t *cfg_init(cfg_opt_t *opts, cfg_flag_t flags)
 	if (!cfg)
 		return NULL;
 
-	cfg->name = strdup("root");
+	cfg->name = _strdup("root");
 	if (!cfg->name) {
 		free(cfg);
 		return NULL;
@@ -1649,7 +1649,7 @@ DLLIMPORT char *cfg_tilde_expand(const char *filename)
 	}
 #endif
 	if (!expanded)
-		expanded = strdup(filename);
+		expanded = _strdup(filename);
 
 	return expanded;
 }
@@ -1806,7 +1806,7 @@ DLLIMPORT int cfg_opt_setcomment(cfg_opt_t *opt, char *comment)
 	}
 
 	oldcomment = opt->comment;
-	newcomment = strdup(comment);
+	newcomment = _strdup(comment);
 	if (!newcomment)
 		return CFG_FAIL;
 
@@ -1937,7 +1937,7 @@ DLLIMPORT int cfg_opt_setnstr(cfg_opt_t *opt, const char *value, unsigned int in
 		oldstr = val->string;
 
 	if (value) {
-		newstr = strdup(value);
+		newstr = _strdup(value);
 		if (!newstr)
 			return CFG_FAIL;
 		val->string = newstr;
